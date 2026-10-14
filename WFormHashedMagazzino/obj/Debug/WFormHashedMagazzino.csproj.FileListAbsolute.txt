@@ -1,0 +1,10 @@
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\bin\Debug\WFormHashedMagazzino.exe.config
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\bin\Debug\WFormHashedMagazzino.exe
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\bin\Debug\WFormHashedMagazzino.pdb
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\obj\Debug\WFormHashedMagazzino.csproj.AssemblyReference.cache
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\obj\Debug\WFormHashedMagazzino.Form1.resources
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\obj\Debug\WFormHashedMagazzino.Properties.Resources.resources
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\obj\Debug\WFormHashedMagazzino.csproj.GenerateResource.cache
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\obj\Debug\WFormHashedMagazzino.csproj.CoreCompileInputs.cache
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\obj\Debug\WFormHashedMagazzino.exe
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\ARCHIVI\WFormHashedMagazzino\WFormHashedMagazzino\obj\Debug\WFormHashedMagazzino.pdb
