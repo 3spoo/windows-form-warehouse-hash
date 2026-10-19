@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -19,7 +19,8 @@ namespace WFormHashedMagazzino
 
         const int M = 100;
         const int DIM_NOME = 16;
-        const int DIM_RECORD = 4 + DIM_NOME + 16 + 4 + 1;
+        const int BYTE_PER_CARATTERE_UNICODE = 2;
+        const int DIM_RECORD = 4 + DIM_NOME * BYTE_PER_CARATTERE_UNICODE + 16 + 4 + 1;
 
         static int ID_COUNTER;
 
@@ -94,37 +95,40 @@ namespace WFormHashedMagazzino
             public static int Hash(int id)
             {
                 // IPOTIZZO UN M = 100
-                return id.GetHashCode() % M; 
+                return id.GetHashCode() % M;
             }
-
         }
 
         // ** FUNCTIONS **
+
         public void GeneraFile()
         {
-            using(FileStream fs = new FileStream(FILE_ARCHIVIO, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            using (FileStream fs = new FileStream(
+                FILE_ARCHIVIO, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 if (fs.Length != M * DIM_RECORD)
-                    fs.SetLength(M * DIM_RECORD);
-
-                else
                 {
-                    int id_max = -1;
+                    fs.SetLength(M * DIM_RECORD);
+                }
 
-                    using(BinaryReader br = new BinaryReader(fs))
+                int id_max = 0;
+
+                using (BinaryReader br = new BinaryReader(fs, Encoding.Unicode, true))
+                {
+                    // SCORRE TUTTE LE POSIZIONI DELL'ARCHIVIO
+                    for (int posizione = 0; posizione < M; posizione++)
                     {
-                        int posizione = 0;
-                        foreach (var item in FILE_ARCHIVIO)
-                        {
-                            fs.Seek(posizione * DIM_RECORD, SeekOrigin.Begin);
-                            int id_tmp = br.ReadInt32();
-                            id_max = id_tmp > id_max ? id_tmp : id_max;
-                            posizione++;
-                        }
-                        
-                        ID_COUNTER = id_max > 0 ? id_max : 0;
+                        fs.Seek(posizione * DIM_RECORD, SeekOrigin.Begin);
+
+                        int id_tmp = br.ReadInt32();
+
+                        if (id_tmp > id_max)
+                            id_max = id_tmp;
                     }
                 }
+
+                // RECUPERA IL CODICE MASSIMO UTILIZZATO
+                ID_COUNTER = id_max;
             }
         }
 
@@ -132,44 +136,45 @@ namespace WFormHashedMagazzino
         {
             dataGridView1.Rows.Clear();
 
-            using(FileStream fs = new FileStream(FILE_ARCHIVIO, FileMode.Open, FileAccess.Read))
+            using (FileStream fs = new FileStream(
+                FILE_ARCHIVIO, FileMode.Open, FileAccess.Read))
             {
-                int posizione = 0;
-                foreach (var item in FILE_ARCHIVIO)
+                // SCORRE TUTTE LE POSIZIONI DELL'ARCHIVIO
+                for (int posizione = 0; posizione < M; posizione++)
                 {
-                    fs.Seek(posizione * DIM_RECORD, SeekOrigin.Begin);
                     Prodotto p = GetProdotto(fs, posizione);
-                        
-                    if (p != null && p.IsActive)
-                        dataGridView1.Rows.Add(p.Codice, p.Nome, p.Prezzo, p.Qty);
-                    posizione++;
+
+                    if (p.Codice != 0 && p.IsActive)
+                        dataGridView1.Rows.Add(
+                            p.Codice, p.Nome, p.Prezzo, p.Qty);
                 }
             }
         }
 
         public Prodotto GetProdotto(FileStream fs, int posizione)
         {
-            try
+            fs.Seek(posizione * DIM_RECORD, SeekOrigin.Begin);
+
+            using (BinaryReader br = new BinaryReader(fs, Encoding.Unicode, true))
             {
-                fs.Seek(posizione * DIM_RECORD, SeekOrigin.Begin);
-                using (BinaryReader br = new BinaryReader(fs, Encoding.UTF8, true)) // LEAVE OPEN = true
-                {
-                    // Encoding.UTF8.GetString(br.ReadBytes(DIM_NOME))
-                    return new Prodotto(br.ReadInt32(), Encoding.UTF8.GetString(br.ReadBytes(DIM_NOME)), br.ReadDecimal(), br.ReadInt32(), br.ReadBoolean());
-                }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("PRODOTTO NON TROVATO", "ERRORE");
-                return null;
+                // LEGGE I CAMPI DEL RECORD NELLO STESSO ORDINE DI SCRITTURA
+                int codice = br.ReadInt32();
+                string nome = ReadStringa(br, DIM_NOME);
+                decimal prezzo = br.ReadDecimal();
+                int qty = br.ReadInt32();
+                bool isActive = br.ReadBoolean();
+
+                return new Prodotto(codice, nome, prezzo, qty, isActive);
             }
         }
 
         public void WriteProdotto(FileStream fs, Prodotto prodotto, int posizione)
         {
             fs.Seek(posizione * DIM_RECORD, SeekOrigin.Begin);
-            using (BinaryWriter bw = new BinaryWriter(fs, Encoding.UTF8, true))
+
+            using (BinaryWriter bw = new BinaryWriter(fs, Encoding.Unicode, true))
             {
+                // SCRIVE I CAMPI DEL RECORD NELLO STESSO ORDINE DI LETTURA
                 bw.Write(prodotto.Codice);
                 WriteStringa(bw, prodotto.Nome, DIM_NOME);
                 bw.Write(prodotto.Prezzo);
@@ -178,16 +183,29 @@ namespace WFormHashedMagazzino
             }
         }
 
-        // SCRITTURA STRINGA ATTRAVERSO BYTE_ARRAY
+        // SCRIVE UNA STRINGA UTF-16 A DIMENSIONE FISSA
         public void WriteStringa(BinaryWriter bw, string stringa, int dimensione)
         {
-            byte[] stringaByte = Encoding.UTF8.GetBytes(stringa);
-            byte[] bufffer = new byte[dimensione];
+            byte[] dati = Encoding.Unicode.GetBytes(stringa);
+            int dimensioneByte = dimensione * BYTE_PER_CARATTERE_UNICODE;
 
-            int byteToCopy = Math.Min(stringaByte.Length, bufffer.Length);
-            Array.Copy(stringaByte, bufffer, byteToCopy);
+            if (dati.Length > dimensioneByte)
+                throw new ArgumentException("STRINGA TROPPO LUNGA.");
 
-            bw.Write(bufffer);
+            bw.Write(dati);
+            bw.Write(new byte[dimensioneByte - dati.Length]);
+        }
+
+        // LEGGE UNA STRINGA UTF-16 A DIMENSIONE FISSA
+        public string ReadStringa(BinaryReader br, int dimensione)
+        {
+            int dimensioneByte = dimensione * BYTE_PER_CARATTERE_UNICODE;
+            byte[] dati = br.ReadBytes(dimensioneByte);
+
+            if (dati.Length != dimensioneByte)
+                throw new EndOfStreamException("RECORD INCOMPLETO.");
+
+            return Encoding.Unicode.GetString(dati).TrimEnd('\0');
         }
 
         // ** BUTTONS **
@@ -202,12 +220,12 @@ namespace WFormHashedMagazzino
             }
 
             decimal prezzo = nudPrezzo.Value;
-            int qty = (int) nudQty.Value;
+            int qty = (int)nudQty.Value;
 
             Prodotto p = new Prodotto(nome, prezzo, qty);
             int posizione = Prodotto.Hash(p.Codice);
 
-            using(FileStream fs = new FileStream(FILE_ARCHIVIO, FileMode.Open, FileAccess.Write))
+            using (FileStream fs = new FileStream(FILE_ARCHIVIO, FileMode.Open, FileAccess.Write))
             {
                 WriteProdotto(fs, p, posizione);
             }
@@ -220,14 +238,16 @@ namespace WFormHashedMagazzino
             try
             {
                 int codice = Convert.ToInt32(txtCodice.Text);
+                int posizione = Prodotto.Hash(codice);
 
                 Prodotto p;
+
                 using (FileStream fs = new FileStream(FILE_ARCHIVIO, FileMode.Open, FileAccess.Read))
                 {
-                    p = GetProdotto(fs, codice);
+                    p = GetProdotto(fs, posizione);
                 }
 
-                if (p != null && p.IsActive)
+                if (p.Codice == codice && p.IsActive)
                 {
                     txtCodice.Text = Convert.ToString(p.Codice);
                     txtNome.Text = p.Nome;
@@ -235,7 +255,9 @@ namespace WFormHashedMagazzino
                     nudQty.Value = p.Qty;
                 }
                 else
+                {
                     MessageBox.Show("PRODOTTO NON TROVATO", "ERRORE");
+                }
             }
             catch (Exception)
             {
@@ -248,11 +270,19 @@ namespace WFormHashedMagazzino
             try
             {
                 int codice = Convert.ToInt32(txtCodice.Text);
+                int posizione = Prodotto.Hash(codice);
 
                 Prodotto p;
+
                 using (FileStream fs = new FileStream(FILE_ARCHIVIO, FileMode.Open, FileAccess.Read))
                 {
-                    p = GetProdotto(fs, codice);
+                    p = GetProdotto(fs, posizione);
+                }
+
+                if (p.Codice != codice || !p.IsActive)
+                {
+                    MessageBox.Show("PRODOTTO NON TROVATO", "ERRORE");
+                    return;
                 }
 
                 string nome = txtNome.Text;
@@ -263,14 +293,9 @@ namespace WFormHashedMagazzino
                     return;
                 }
 
-                decimal prezzo = nudPrezzo.Value;
-                int qty = (int)nudQty.Value;
-
                 p.Nome = nome;
-                p.Prezzo = prezzo;
-                p.Qty = qty;
-
-                int posizione = Prodotto.Hash(p.Codice);
+                p.Prezzo = nudPrezzo.Value;
+                p.Qty = (int)nudQty.Value;
 
                 using (FileStream fs = new FileStream(FILE_ARCHIVIO, FileMode.Open, FileAccess.Write))
                 {
@@ -290,16 +315,22 @@ namespace WFormHashedMagazzino
             try
             {
                 int codice = Convert.ToInt32(txtCodice.Text);
+                int posizione = Prodotto.Hash(codice);
 
                 Prodotto p;
+
                 using (FileStream fs = new FileStream(FILE_ARCHIVIO, FileMode.Open, FileAccess.Read))
                 {
-                    p = GetProdotto(fs, codice);
+                    p = GetProdotto(fs, posizione);
+                }
+
+                if (p.Codice != codice || !p.IsActive)
+                {
+                    MessageBox.Show("PRODOTTO NON TROVATO", "ERRORE");
+                    return;
                 }
 
                 p.IsActive = false;
-
-                int posizione = Prodotto.Hash(p.Codice);
 
                 using (FileStream fs = new FileStream(FILE_ARCHIVIO, FileMode.Open, FileAccess.Write))
                 {
