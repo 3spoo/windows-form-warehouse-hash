@@ -1,0 +1,10 @@
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\bin\Debug\WFormMagazzino.exe.config
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\bin\Debug\WFormMagazzino.exe
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\bin\Debug\WFormMagazzino.pdb
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\obj\Debug\WFormMagazzino.csproj.AssemblyReference.cache
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\obj\Debug\WFormMagazzino.Form1.resources
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\obj\Debug\WFormMagazzino.Properties.Resources.resources
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\obj\Debug\WFormMagazzino.csproj.GenerateResource.cache
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\obj\Debug\WFormMagazzino.csproj.CoreCompileInputs.cache
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\obj\Debug\WFormMagazzino.exe
+C:\Users\Utente\Desktop\SCHOOL\INFORMATICA\VS_FORMS\WFormMagazzino\WFormMagazzino\obj\Debug\WFormMagazzino.pdb
